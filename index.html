@@ -46,7 +46,6 @@
   }
   .wrap{position:relative; z-index:1; max-width:820px; margin:0 auto; padding:32px 20px 80px;}
 
-  /* ---------- Header ---------- */
   header{display:flex; align-items:center; gap:14px; margin-bottom:8px;}
   .ball{width:34px;height:34px;flex:0 0 auto;}
   .brand{
@@ -68,7 +67,6 @@
   h1 span{color:var(--gold);}
   .sub{color:var(--silver); font-size:16px; line-height:1.5; max-width:52ch; margin:0 0 28px;}
 
-  /* ---------- Name screen ---------- */
   #screen-name .card{
     background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
     border:1px solid var(--line);
@@ -105,7 +103,6 @@
   }
   .btn-ghost:hover{background:rgba(255,255,255,0.04); color:var(--white);}
 
-  /* ---------- Predict screen ---------- */
   #screen-predict{display:none;}
   .top-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
   .greeting{font-size:15px; color:var(--silver);}
@@ -172,7 +169,6 @@
 
   .nav-row{display:flex; justify-content:space-between; gap:10px; margin-top:24px;}
 
-  /* ---------- Review / submit ---------- */
   #screen-review{display:none;}
   .summary-card{
     background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
@@ -228,7 +224,6 @@
     <div class="brand">Predicciones · Fase Liga 2026/27</div>
   </header>
 
-  <!-- SCREEN 1: NAME -->
   <section id="screen-name">
     <h1>Adiviná los <span>resultados</span><br>de la Champions</h1>
     <p class="sub">Ingresá tu nombre y predecí el marcador de la jornada actual de la fase liga. Al completar la jornada disponible podés enviar tus predicciones.</p>
@@ -239,7 +234,6 @@
     </div>
   </section>
 
-  <!-- SCREEN 2: PREDICT -->
   <section id="screen-predict">
     <div class="top-row">
       <div class="greeting">Prediciendo como <b id="greetName"></b></div>
@@ -257,7 +251,6 @@
     </div>
   </section>
 
-  <!-- SCREEN 3: REVIEW / SEND -->
   <section id="screen-review">
     <h1 style="font-size:clamp(26px,5vw,36px);">Revisá y enviá</h1>
     <p class="sub">Tus predicciones se enviarán a <b style="color:var(--gold)">igarzabal.felipe.et35.2026@gmail.com</b>. Podés volver atrás para modificar tus marcadores.</p>
@@ -270,7 +263,6 @@
     </div>
   </section>
 
-  <!-- SCREEN 4: DONE -->
   <section id="screen-done">
     <div class="card">
       <h2>¡Predicciones enviadas! ⚽</h2>
@@ -284,9 +276,9 @@
 <script>
 // ========== CONFIGURACIÓN ==========
 // 1. Andá a https://web3forms.com/
-// 2. Poné tu email: igarzabal.felipe.et35.2026@gmail.com
-// 3. Copiá la Access Key que te dan
-// 4. Pegala acá abajo reemplazando el texto:
+// 2. Poné EXACTAMENTE este email: igarzabal.felipe.et35.2026@gmail.com
+// 3. Copiá la Access Key nueva que te dan
+// 4. Pegala acá abajo (reemplazá el valor actual):
 const ACCESS_KEY = "4c88b2d8-e22d-4c52-b086-2522d629af0b";
 // ==================================
 
@@ -546,8 +538,8 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     return;
   }
 
-  if (!ACCESS_KEY || ACCESS_KEY === "254b267f-3b57-4e19-8f9f-d561ef4362d0") {
-    statusMsg.innerHTML = '⚠️ Falta configurar la Access Key. Andá a <a href="https://web3forms.com/" target="_blank" style="color:var(--gold)">web3forms.com</a>, poné tu email y pegá la key en el código.';
+  if (!ACCESS_KEY || ACCESS_KEY === "PEGÁ_TU_ACCESS_KEY_NUEVA_ACÁ") {
+    statusMsg.innerHTML = '⚠️ Falta configurar la Access Key. Andá a <a href="https://web3forms.com/" target="_blank" style="color:var(--gold)">web3forms.com</a>, poné el email <b>igarzabal.felipe.et35.2026@gmail.com</b> y pegá la key nueva en el código.';
     statusMsg.className = 'status-msg err';
     return;
   }
@@ -563,11 +555,11 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     const jPreds = predictions[jIdx];
     const anyFilled = jPreds.some(m => m.home!=="" && m.away!=="");
     if(!anyFilled) continue;
-    lines.push(`Jornada ${j.n} (${j.dateLabel})`);
+    lines.push('Jornada ' + j.n + ' (' + j.dateLabel + ')');
     j.matches.forEach((m, mIdx) => {
       const p = jPreds[mIdx];
       if(p.home!=="" && p.away!==""){
-        lines.push(`  ${m[0]} ${p.home} - ${p.away} ${m[1]}`);
+        lines.push('  ' + m[0] + ' ' + p.home + ' - ' + p.away + ' ' + m[1]);
       }
     });
     lines.push('');
@@ -583,10 +575,10 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
       },
       body: JSON.stringify({
         access_key: ACCESS_KEY,
-        subject: `Predicciones Champions League de ${playerName}`,
+        subject: 'Predicciones Champions League de ' + playerName,
         from_name: playerName,
         Nombre: playerName,
-        "Partidos predichos": filled + " / " + total,
+        "Partidos predichos": filled + ' / ' + total,
         Predicciones: predictionsText
       })
     });
