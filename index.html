@@ -196,6 +196,70 @@
 
   footer{text-align:center; color:#4c5484; font-size:12px; margin-top:40px;}
 
+
+  /* ---------- Main nav tabs ---------- */
+  .main-tabs{
+    display:flex; gap:8px; margin:18px 0 22px;
+  }
+  .main-tab{
+    flex:1; text-align:center;
+    padding:12px 16px; border-radius:12px;
+    font-size:14px; font-weight:600;
+    color:var(--silver);
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .main-tab.active{
+    background:var(--blue-500); color:white; border-color:var(--blue-500);
+  }
+
+  /* ---------- Standings ---------- */
+  #screen-tabla{display:none;}
+  .tabla-card{
+    background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+  }
+  .tabla-table{
+    width:100%; border-collapse:collapse;
+    font-size:15px;
+  }
+  .tabla-table th{
+    text-align:left;
+    padding:14px 18px;
+    font-size:12px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--silver);
+    background:rgba(0,0,0,0.25);
+    border-bottom:1px solid var(--line);
+  }
+  .tabla-table th:last-child,
+  .tabla-table td:last-child{
+    text-align:center;
+    width:90px;
+  }
+  .tabla-table td{
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .tabla-table tr:last-child td{border-bottom:none;}
+  .tabla-table tr:hover td{background:rgba(255,255,255,0.03);}
+  .pos{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px; border-radius:50%;
+    font-size:12px; font-weight:700;
+    background:var(--navy-800); color:var(--silver);
+    margin-right:10px;
+  }
+  .player-name{font-weight:600;}
+  .pts-val{
+    font-family:'Oswald',sans-serif;
+    font-size:20px; font-weight:700; color:var(--gold);
+  }
+
   @media(max-width:480px){
     .match{grid-template-columns:1fr; text-align:center; gap:10px;}
     .team.right{text-align:center;}
@@ -223,6 +287,12 @@
     </svg>
     <div class="brand">Predicciones · Fase Liga 2026/27</div>
   </header>
+
+  <div class="main-tabs" id="mainTabs">
+    <button class="main-tab active" data-screen="predict-flow">Predicciones</button>
+    <button class="main-tab" data-screen="tabla">Tabla de posiciones</button>
+  </div>
+
 
   <section id="screen-name">
     <h1>Adiviná los <span>resultados</span><br>de la Champions</h1>
@@ -270,6 +340,25 @@
     </div>
   </section>
 
+
+  <!-- SCREEN: TABLA -->
+  <section id="screen-tabla">
+    <h1 style="font-size:clamp(26px,5vw,36px);">Tabla de <span>posiciones</span></h1>
+    <p class="sub">Puntos actualizados según los aciertos de cada jornada.</p>
+    <div class="tabla-card">
+      <table class="tabla-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="tablaBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <footer>Calendario oficial UEFA Champions League 2026/27 · Fase Liga</footer>
 </div>
 
@@ -284,12 +373,12 @@ const ACCESS_KEY = "4c88b2d8-e22d-4c52-b086-2522d629af0b";
 
 const JORNADAS = [
   { n:1, dateLabel:"8–10 de septiembre de 2026", matches:[
-    ["AEK Athens","LASK"],["Club Brugge","Aston Villa"],["Borussia Dortmund","Villarreal"],
-    ["Porto","Manchester City"],["Lille","Real Betis"],["Real Madrid","Inter"],
-    ["Barcelona","Feyenoord"],["Stuttgart","Viking"],["Liverpool","Atlético de Madrid"],
-    ["Paris Saint-Germain","Slovan Bratislava"],["Sporting CP","Galatasaray"],["Napoli","Arsenal"],
-    ["Fenerbahçe","Roma"],["PSV Eindhoven","Shakhtar Donetsk"],["Como","Leipzig"],
-    ["Bayern München","Bodø/Glimt"],["Manchester United","Sabah"],["Slavia Praha","Lens"]
+    ["Manchester City","Porto"],
+    ["Real Madrid","Inter"],
+    ["Barcelona","Feyenoord"],
+    ["Liverpool","Atlético de Madrid"],
+    ["Arsenal","Napoli"],
+    ["Bayern München","Bodø/Glimt"]
   ]},
   { n:2, dateLabel:"13–14 de octubre de 2026", matches:[
     ["Lens","Sporting CP"],["Sabah","Slavia Praha"],["Arsenal","Lille"],
@@ -601,6 +690,58 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     sendBtn.disabled = false;
   }
 });
+
+const PLAYERS = [
+  "El Nine","Martin","Toco","Garete","Crespo","Jere","Bruno","Axel","Uru","Felipe"
+];
+
+function renderTabla(){
+  const body = document.getElementById('tablaBody');
+  body.innerHTML = '';
+  PLAYERS.forEach((name, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="pos">${i+1}</span><span class="player-name">${name}</span></td>
+      <td><span class="pts-val">0</span></td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function showMainScreen(which){
+  // which: 'predict-flow' | 'tabla'
+  const name = document.getElementById('screen-name');
+  const predict = document.getElementById('screen-predict');
+  const review = document.getElementById('screen-review');
+  const done = document.getElementById('screen-done');
+  const tabla = document.getElementById('screen-tabla');
+
+  // hide all
+  [name, predict, review, done, tabla].forEach(el => { if(el) el.style.display = 'none'; });
+
+  document.querySelectorAll('.main-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.screen === which);
+  });
+
+  if(which === 'tabla'){
+    renderTabla();
+    tabla.style.display = 'block';
+  } else {
+    // predict flow: show name if no player yet, else predict
+    if(!playerName){
+      name.style.display = 'block';
+    } else {
+      predict.style.display = 'block';
+      renderJornada(currentJornadaIdx);
+    }
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('.main-tab').forEach(tab => {
+  tab.addEventListener('click', () => showMainScreen(tab.dataset.screen));
+});
+
 </script>
 </body>
 </html>
