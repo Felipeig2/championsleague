@@ -267,9 +267,6 @@
       <button class="btn btn-block" id="sendBtn">Enviar mis predicciones</button>
       <button class="btn btn-ghost btn-block" id="backToPredictBtn" style="margin-top:10px;">← Volver a las predicciones</button>
       <div class="status-msg" id="statusMsg"></div>
-      <p style="margin-top:16px;font-size:12px;color:var(--silver);line-height:1.5;">
-        <b>Importante:</b> la primera vez FormSubmit manda un mail de <b>activación</b> a felipeigarzabal@gmail.com. Revisá la bandeja de entrada y el <b>Spam</b>, hacé clic en “Activate” y después los envíos llegan normales.
-      </p>
     </div>
   </section>
 
@@ -285,7 +282,13 @@
 </div>
 
 <script>
-const DEST_EMAIL = "felipeigarzabal@gmail.com";
+// ========== CONFIGURACIÓN ==========
+// 1. Andá a https://web3forms.com/
+// 2. Poné tu email: felipeigarzabal@gmail.com
+// 3. Copiá la Access Key que te dan
+// 4. Pegala acá abajo reemplazando el texto:
+const ACCESS_KEY = "PEGÁ_TU_ACCESS_KEY_ACÁ";
+// ==================================
 
 const JORNADAS = [
   { n:1, dateLabel:"8–10 de septiembre de 2026", matches:[
@@ -543,9 +546,8 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     return;
   }
 
-  // Aviso si se está abriendo como archivo local
-  if (window.location.protocol === 'file:') {
-    statusMsg.innerHTML = '⚠️ Abrí esta página desde un servidor (no como archivo local). Subila a Netlify, GitHub Pages o usá Live Server.';
+  if (!ACCESS_KEY || ACCESS_KEY === "PEGÁ_TU_ACCESS_KEY_ACÁ") {
+    statusMsg.innerHTML = '⚠️ Falta configurar la Access Key. Andá a <a href="https://web3forms.com/" target="_blank" style="color:var(--gold)">web3forms.com</a>, poné tu email y pegá la key en el código.';
     statusMsg.className = 'status-msg err';
     return;
   }
@@ -572,72 +574,41 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
   }
   const predictionsText = lines.join('\n');
 
-  // Usamos FormData (más compatible con FormSubmit que JSON)
-  const formData = new FormData();
-  formData.append('Nombre', playerName);
-  formData.append('Partidos predichos', filled + ' / ' + total);
-  formData.append('Predicciones', predictionsText);
-  formData.append('_subject', `Predicciones Champions League de ${playerName}`);
-  formData.append('_captcha', 'false');
-  formData.append('_template', 'box');
-  formData.append('_honey', ''); // honeypot anti-spam
-
   try {
-    const res = await fetch(`https://formsubmit.co/ajax/${DEST_EMAIL}`, {
-      method: 'POST',
-      body: formData,
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
       headers: {
-        'Accept': 'application/json'
-      }
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        access_key: ACCESS_KEY,
+        subject: `Predicciones Champions League de ${playerName}`,
+        from_name: playerName,
+        Nombre: playerName,
+        "Partidos predichos": filled + " / " + total,
+        Predicciones: predictionsText
+      })
     });
 
-    const data = await res.json().catch(() => ({}));
+    const data = await res.json();
 
-    if (res.ok && data.success !== 'false') {
+    if (res.ok && data.success) {
       document.getElementById('doneName').textContent = playerName;
       document.getElementById('screen-review').style.display = 'none';
       document.getElementById('screen-done').style.display = 'block';
       window.scrollTo({top:0, behavior:'smooth'});
     } else {
-      // Si falla AJAX, usamos el método clásico de form POST
-      statusMsg.innerHTML = 'Reintentando con método alternativo...';
-      submitViaForm(playerName, filled, total, predictionsText);
+      statusMsg.textContent = data.message || 'Error al enviar. Revisá la Access Key.';
+      statusMsg.className = 'status-msg err';
     }
   } catch (err) {
-    statusMsg.innerHTML = 'Error de red. Reintentando...';
-    submitViaForm(playerName, filled, total, predictionsText);
+    statusMsg.textContent = 'Error de red. Intentá de nuevo.';
+    statusMsg.className = 'status-msg err';
   } finally {
     sendBtn.disabled = false;
   }
 });
-
-function submitViaForm(name, filled, total, predictionsText) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = `https://formsubmit.co/${DEST_EMAIL}`;
-  form.style.display = 'none';
-
-  const fields = {
-    'Nombre': name,
-    'Partidos predichos': `${filled} / ${total}`,
-    'Predicciones': predictionsText,
-    '_subject': `Predicciones Champions League de ${name}`,
-    '_captcha': 'false',
-    '_template': 'box',
-    '_next': window.location.href // vuelve a la misma página después
-  };
-
-  for (const key in fields) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = fields[key];
-    form.appendChild(input);
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-}
 </script>
 </body>
 </html>
