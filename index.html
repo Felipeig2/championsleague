@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predicciones Champions League 2026/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#080b1a;
+    --navy-900:#0c1130;
+    --navy-800:#131a45;
+    --navy-700:#1b2560;
+    --blue-500:#3457ff;
+    --blue-400:#5b7bff;
+    --silver:#c7cee0;
+    --white:#f4f6ff;
+    --gold:#d8b25c;
+    --ok:#3ecf8e;
+    --line:rgba(199,206,224,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 550px at 15% -10%, rgba(52,87,255,0.35), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(216,178,92,0.10), transparent 55%),
+      var(--navy-950);
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .stars{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1.5px 1.5px at 80% 10%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 30% 85%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 45% 35%, rgba(255,255,255,0.3), transparent);
+    background-repeat:no-repeat;
+  }
+  .wrap{position:relative; z-index:1; max-width:820px; margin:0 auto; padding:32px 20px 80px;}
+
+  /* ---------- Header ---------- */
+  header{display:flex; align-items:center; gap:14px; margin-bottom:8px;}
+  .ball{width:34px;height:34px;flex:0 0 auto;}
+  .brand{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    letter-spacing:0.02em;
+    font-size:15px;
+    color:var(--silver);
+    text-transform:uppercase;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:clamp(32px,6vw,52px);
+    line-height:1.03;
+    margin:18px 0 6px;
+    letter-spacing:-0.01em;
+  }
+  h1 span{color:var(--gold);}
+  .sub{color:var(--silver); font-size:16px; line-height:1.5; max-width:52ch; margin:0 0 28px;}
+
+  /* ---------- Name screen ---------- */
+  #screen-name .card{
+    background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:32px;
+  }
+  label{display:block; font-size:13px; color:var(--silver); margin-bottom:8px; letter-spacing:0.02em;}
+  input[type=text]{
+    width:100%;
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    color:var(--white);
+    font-size:17px;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  input[type=text]:focus{border-color:var(--blue-400);}
+  .btn{
+    appearance:none; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:15px;
+    padding:14px 26px; border-radius:10px;
+    background:var(--blue-500); color:white;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--blue-400);}
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{background:#2a3260; color:#6a749c; cursor:not-allowed;}
+  .btn-block{width:100%; margin-top:20px;}
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color:var(--silver);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,0.04); color:var(--white);}
+
+  /* ---------- Predict screen ---------- */
+  #screen-predict{display:none;}
+  .top-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
+  .greeting{font-size:15px; color:var(--silver);}
+  .greeting b{color:var(--white);}
+  .progress-wrap{
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .progress-bar{flex:1; height:6px; border-radius:999px; background:var(--navy-800); overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--blue-500),var(--gold)); width:0%; transition:width .2s ease;}
+  .progress-label{font-size:12px; color:var(--silver); white-space:nowrap; font-variant-numeric:tabular-nums;}
+
+  .tabs{
+    display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:22px;
+    scrollbar-width:thin;
+  }
+  .tab{
+    flex:0 0 auto; padding:9px 15px; border-radius:999px;
+    font-size:13px; font-weight:600; color:var(--silver);
+    background:var(--navy-900); border:1px solid var(--line);
+    cursor:pointer; white-space:nowrap; position:relative;
+    font-family:'Inter',sans-serif;
+  }
+  .tab.active{background:var(--blue-500); color:white; border-color:var(--blue-500);}
+  .tab.disabled{opacity:0.4; cursor:not-allowed;}
+  .tab .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--ok); margin-left:6px; vertical-align:middle; opacity:0;
+  }
+  .tab.complete .dot{opacity:1;}
+
+  .jornada-date{font-size:13px; color:var(--gold); margin-bottom:14px; letter-spacing:0.02em;}
+
+  .match{
+    background:var(--navy-900);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:10px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    gap:10px;
+  }
+  .team{font-size:14.5px; font-weight:500; line-height:1.3;}
+  .team.right{text-align:right;}
+  .score-inputs{display:flex; align-items:center; gap:8px; justify-content:center;}
+  .score-inputs input{
+    width:44px; height:44px;
+    text-align:center;
+    background:var(--navy-800);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--white);
+    font-size:17px;
+    font-weight:700;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    -moz-appearance:textfield;
+  }
+  .score-inputs input::-webkit-outer-spin-button,
+  .score-inputs input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  .score-inputs input:focus{border-color:var(--blue-400); background:var(--navy-700);}
+  .score-inputs span{color:var(--silver); font-weight:600;}
+
+  .nav-row{display:flex; justify-content:space-between; gap:10px; margin-top:24px;}
+
+  /* ---------- Review / submit ---------- */
+  #screen-review{display:none;}
+  .summary-card{
+    background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
+    border:1px solid var(--line); border-radius:18px; padding:28px;
+    text-align:center;
+  }
+  .summary-num{font-family:'Oswald',sans-serif; font-size:52px; font-weight:700; color:var(--gold);}
+  .summary-label{color:var(--silver); font-size:14px; margin-top:2px;}
+  .status-msg{margin-top:18px; font-size:14px; min-height:20px;}
+  .status-msg.ok{color:var(--ok);}
+  .status-msg.err{color:#ff6b6b;}
+  .spinner{
+    display:inline-block; width:14px; height:14px; border-radius:50%;
+    border:2px solid rgba(255,255,255,0.3); border-top-color:white;
+    animation:spin .7s linear infinite; vertical-align:middle; margin-right:8px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #screen-done{display:none; text-align:center;}
+  #screen-done .card{
+    background:linear-gradient(180deg, rgba(27,37,96,0.55), rgba(19,26,69,0.55));
+    border:1px solid var(--line); border-radius:18px; padding:40px 28px;
+  }
+  #screen-done h2{font-family:'Oswald',sans-serif; font-size:28px; margin:0 0 8px;}
+
+  footer{text-align:center; color:#4c5484; font-size:12px; margin-top:40px;}
+
+  @media(max-width:480px){
+    .match{grid-template-columns:1fr; text-align:center; gap:10px;}
+    .team.right{text-align:center;}
+    .score-inputs{justify-content:center;}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <header>
+    <svg class="ball" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="46" stroke="#5b7bff" stroke-width="2.5"/>
+      <g stroke="#d8b25c" stroke-width="1.6" opacity="0.9">
+        <path d="M50 10 L54 20 L46 20 Z"/>
+        <path d="M50 90 L54 80 L46 80 Z"/>
+        <path d="M10 50 L20 46 L20 54 Z"/>
+        <path d="M90 50 L80 46 L80 54 Z"/>
+        <path d="M22 22 L30 28 L24 32 Z"/>
+        <path d="M78 22 L70 28 L76 32 Z"/>
+        <path d="M22 78 L30 72 L24 68 Z"/>
+        <path d="M78 78 L70 72 L76 68 Z"/>
+      </g>
+    </svg>
+    <div class="brand">Predicciones · Fase Liga 2026/27</div>
+  </header>
+
+  <!-- SCREEN 1: NAME -->
+  <section id="screen-name">
+    <h1>Adiviná los <span>resultados</span><br>de la Champions</h1>
+    <p class="sub">Ingresá tu nombre y predecí el marcador de la jornada actual de la fase liga. Al completar la jornada disponible podés enviar tus predicciones.</p>
+    <div class="card">
+      <label for="playerName">Tu nombre</label>
+      <input type="text" id="playerName" name="playerName" placeholder="Ej: Felipe Garzábal" autocomplete="name">
+      <button class="btn btn-block" id="startBtn" disabled>Empezar a predecir</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: PREDICT -->
+  <section id="screen-predict">
+    <div class="top-row">
+      <div class="greeting">Prediciendo como <b id="greetName"></b></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0</div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="jornada-date" id="jornadaDate"></div>
+    <div id="matchList"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prevBtn">← Jornada anterior</button>
+      <button class="btn" id="nextBtn">Siguiente jornada →</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: REVIEW / SEND -->
+  <section id="screen-review">
+    <h1 style="font-size:clamp(26px,5vw,36px);">Revisá y enviá</h1>
+    <p class="sub">Tus predicciones se enviarán a <b style="color:var(--gold)">felipeigarzabal@gmail.com</b>. Podés volver atrás para modificar tus marcadores.</p>
+    <div class="summary-card">
+      <div class="summary-num" id="reviewCount">0 / 0</div>
+      <div class="summary-label">partidos predichos</div>
+      <button class="btn btn-block" id="sendBtn">Enviar mis predicciones</button>
+      <button class="btn btn-ghost btn-block" id="backToPredictBtn" style="margin-top:10px;">← Volver a las predicciones</button>
+      <div class="status-msg" id="statusMsg"></div>
+      <p style="margin-top:16px;font-size:12px;color:var(--silver);line-height:1.5;">
+        <b>Importante:</b> la primera vez FormSubmit manda un mail de <b>activación</b> a felipeigarzabal@gmail.com. Revisá la bandeja de entrada y el <b>Spam</b>, hacé clic en “Activate” y después los envíos llegan normales.
+      </p>
+    </div>
+  </section>
+
+  <!-- SCREEN 4: DONE -->
+  <section id="screen-done">
+    <div class="card">
+      <h2>¡Predicciones enviadas! ⚽</h2>
+      <p class="sub" style="margin:0 auto;">Gracias, <span id="doneName"></span>. Tus pronósticos ya fueron enviados con éxito.</p>
+    </div>
+  </section>
+
+  <footer>Calendario oficial UEFA Champions League 2026/27 · Fase Liga</footer>
+</div>
+
+<script>
+const DEST_EMAIL = "felipeigarzabal@gmail.com";
+
+const JORNADAS = [
+  { n:1, dateLabel:"8–10 de septiembre de 2026", matches:[
+    ["AEK Athens","LASK"],["Club Brugge","Aston Villa"],["Borussia Dortmund","Villarreal"],
+    ["Porto","Manchester City"],["Lille","Real Betis"],["Real Madrid","Inter"],
+    ["Barcelona","Feyenoord"],["Stuttgart","Viking"],["Liverpool","Atlético de Madrid"],
+    ["Paris Saint-Germain","Slovan Bratislava"],["Sporting CP","Galatasaray"],["Napoli","Arsenal"],
+    ["Fenerbahçe","Roma"],["PSV Eindhoven","Shakhtar Donetsk"],["Como","Leipzig"],
+    ["Bayern München","Bodø/Glimt"],["Manchester United","Sabah"],["Slavia Praha","Lens"]
+  ]},
+  { n:2, dateLabel:"13–14 de octubre de 2026", matches:[
+    ["Lens","Sporting CP"],["Sabah","Slavia Praha"],["Arsenal","Lille"],
+    ["Atlético de Madrid","Manchester United"],["Inter","Club Brugge"],["Galatasaray","Barcelona"],
+    ["Leipzig","PSV Eindhoven"],["Viking","Bayern München"],["Villarreal","Napoli"],
+    ["Feyenoord","Como"],["LASK","Liverpool"],["Roma","Real Madrid"],
+    ["Aston Villa","Fenerbahçe"],["Shakhtar Donetsk","AEK Athens"],["Bodø/Glimt","Borussia Dortmund"],
+    ["Manchester City","Paris Saint-Germain"],["Real Betis","Porto"],["Slovan Bratislava","Stuttgart"]
+  ]},
+  { n:3, dateLabel:"20–21 de octubre de 2026", matches:[
+    ["Fenerbahçe","Slavia Praha"],["Sabah","Borussia Dortmund"],["Roma","Slovan Bratislava"],
+    ["Porto","PSV Eindhoven"],["Liverpool","Villarreal"],["Manchester City","AEK Athens"],
+    ["Paris Saint-Germain","Barcelona"],["Napoli","Bodø/Glimt"],["Stuttgart","Atlético de Madrid"],
+    ["Como","Manchester United"],["Lille","Galatasaray"],["Aston Villa","Viking"],
+    ["Club Brugge","Lens"],["Bayern München","Arsenal"],["Inter","Shakhtar Donetsk"],
+    ["Real Madrid","Leipzig"],["Real Betis","Feyenoord"],["Sporting CP","LASK"]
+  ]},
+  { n:4, dateLabel:"3–4 de noviembre de 2026", matches:[
+    ["Shakhtar Donetsk","Sporting CP"],["Galatasaray","Stuttgart"],["Atlético de Madrid","Bayern München"],
+    ["Barcelona","Aston Villa"],["Feyenoord","Inter"],["Bodø/Glimt","Lille"],
+    ["LASK","Slovan Bratislava"],["Manchester United","Roma"],["Villarreal","Paris Saint-Germain"],
+    ["AEK Athens","Real Madrid"],["Fenerbahçe","Liverpool"],["Borussia Dortmund","Real Betis"],
+    ["Porto","Napoli"],["PSV Eindhoven","Club Brugge"],["Leipzig","Manchester City"],
+    ["Lens","Como"],["Slavia Praha","Arsenal"],["Viking","Sabah"]
+  ]},
+  { n:5, dateLabel:"24–25 de noviembre de 2026", matches:[
+    ["Bodø/Glimt","LASK"],["Galatasaray","Aston Villa"],["Arsenal","Borussia Dortmund"],
+    ["Como","AEK Athens"],["Feyenoord","Porto"],["Manchester City","Napoli"],
+    ["Leipzig","Lens"],["Real Madrid","PSV Eindhoven"],["Slovan Bratislava","Real Betis"],
+    ["Sabah","Barcelona"],["Slavia Praha","Villarreal"],["Atlético de Madrid","Viking"],
+    ["Club Brugge","Liverpool"],["Inter","Stuttgart"],["Shakhtar Donetsk","Fenerbahçe"],
+    ["Lille","Bayern München"],["Paris Saint-Germain","Roma"],["Sporting CP","Manchester United"]
+  ]},
+  { n:6, dateLabel:"8–9 de diciembre de 2026", matches:[
+    ["Viking","Feyenoord"],["Villarreal","Sabah"],["AEK Athens","Galatasaray"],
+    ["Roma","Sporting CP"],["Aston Villa","Paris Saint-Germain"],["Barcelona","Manchester City"],
+    ["Bayern München","Slavia Praha"],["Manchester United","Leipzig"],["Napoli","Club Brugge"],
+    ["Real Betis","Como"],["Slovan Bratislava","Shakhtar Donetsk"],["Arsenal","Real Madrid"],
+    ["Borussia Dortmund","Inter"],["LASK","Fenerbahçe"],["Liverpool","Porto"],
+    ["PSV Eindhoven","Atlético de Madrid"],["Lens","Bodø/Glimt"],["Stuttgart","Lille"]
+  ]},
+  { n:7, dateLabel:"19–20 de enero de 2027", matches:[
+    ["Bodø/Glimt","Atlético de Madrid"],["Galatasaray","Feyenoord"],["AEK Athens","Roma"],
+    ["Aston Villa","Borussia Dortmund"],["Inter","Liverpool"],["Porto","Slavia Praha"],
+    ["Lille","Slovan Bratislava"],["Real Madrid","LASK"],["Stuttgart","Club Brugge"],
+    ["Fenerbahçe","Villarreal"],["Sabah","Napoli"],["Como","Paris Saint-Germain"],
+    ["Manchester United","Bayern München"],["Leipzig","Shakhtar Donetsk"],["Lens","Manchester City"],
+    ["Real Betis","Arsenal"],["Sporting CP","Barcelona"],["Viking","PSV Eindhoven"]
+  ]},
+  { n:8, dateLabel:"27 de enero de 2027", matches:[
+    ["Arsenal","Sabah"],["Roma","Lille"],["Atlético de Madrid","Fenerbahçe"],
+    ["Borussia Dortmund","AEK Athens"],["Club Brugge","Bodø/Glimt"],["Bayern München","Real Betis"],
+    ["Barcelona","Como"],["Shakhtar Donetsk","Real Madrid"],["Feyenoord","Leipzig"],
+    ["LASK","Porto"],["Liverpool","Lens"],["Manchester City","Sporting CP"],
+    ["Paris Saint-Germain","Galatasaray"],["PSV Eindhoven","Stuttgart"],["Slavia Praha","Aston Villa"],
+    ["Napoli","Viking"],["Villarreal","Manchester United"],["Slovan Bratislava","Inter"]
+  ]}
+];
+
+let playerName = "";
+let currentJornadaIdx = 0;
+const predictions = JORNADAS.map(j => j.matches.map(()=>({home:"",away:""})));
+
+function isJornadaComplete(jIdx) {
+  return predictions[jIdx].every(m => m.home !== "" && m.away !== "");
+}
+
+function getMaxUnlockedJornadaIdx() {
+  for (let i = 0; i < JORNADAS.length - 1; i++) {
+    if (!isJornadaComplete(i)) {
+      return i;
+    }
+  }
+  return JORNADAS.length - 1;
+}
+
+const nameInput = document.getElementById('playerName');
+const startBtn = document.getElementById('startBtn');
+
+function validateInput() {
+  startBtn.disabled = nameInput.value.trim().length === 0;
+}
+
+['input', 'keyup', 'change', 'paste'].forEach(evt => {
+  nameInput.addEventListener(evt, validateInput);
+});
+
+nameInput.addEventListener('keydown', e => { 
+  if(e.key === 'Enter' && !startBtn.disabled) startBtn.click(); 
+});
+
+startBtn.addEventListener('click', ()=>{
+  playerName = nameInput.value.trim();
+  document.getElementById('greetName').textContent = playerName;
+  document.getElementById('screen-name').style.display = 'none';
+  document.getElementById('screen-predict').style.display = 'block';
+  buildTabs();
+  renderJornada(0);
+});
+
+function buildTabs(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+
+  JORNADAS.forEach((j,idx)=>{
+    const t = document.createElement('div');
+    t.className = 'tab';
+    if (idx > maxUnlocked) {
+      t.classList.add('disabled');
+    }
+    if (idx === currentJornadaIdx) {
+      t.classList.add('active');
+    }
+    t.id = 'tab-'+idx;
+    t.innerHTML = 'J'+j.n+'<span class="dot"></span>';
+    t.addEventListener('click', ()=>{
+      if (idx <= getMaxUnlockedJornadaIdx()) {
+        renderJornada(idx);
+      }
+    });
+    tabsEl.appendChild(t);
+  });
+}
+
+function countFilledInUnlocked(){
+  let c = 0;
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  for (let i = 0; i <= maxUnlocked; i++) {
+    predictions[i].forEach(m => { if(m.home!=="" && m.away!=="") c++; });
+  }
+  return c;
+}
+
+function getTotalUnlockedMatches(){
+  let c = 0;
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  for (let i = 0; i <= maxUnlocked; i++) {
+    c += JORNADAS[i].matches.length;
+  }
+  return c;
+}
+
+function updateProgress(){
+  const c = countFilledInUnlocked();
+  const totalUnlocked = getTotalUnlockedMatches();
+  document.getElementById('progressFill').style.width = (c / totalUnlocked * 100) + '%';
+  document.getElementById('progressLabel').textContent = c + ' / ' + totalUnlocked;
+
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  JORNADAS.forEach((j,idx)=>{
+    const tabEl = document.getElementById('tab-'+idx);
+    if (!tabEl) return;
+    const filled = isJornadaComplete(idx);
+    tabEl.classList.toggle('complete', filled);
+    tabEl.classList.toggle('disabled', idx > maxUnlocked);
+  });
+}
+
+function renderJornada(idx){
+  currentJornadaIdx = idx;
+  buildTabs();
+  document.getElementById('jornadaDate').textContent = 'Jornada '+JORNADAS[idx].n+' · '+JORNADAS[idx].dateLabel;
+
+  const list = document.getElementById('matchList');
+  list.innerHTML = '';
+  JORNADAS[idx].matches.forEach((m, mIdx)=>{
+    const row = document.createElement('div');
+    row.className = 'match';
+    const pred = predictions[idx][mIdx];
+    row.innerHTML = `
+      <div class="team">${m[0]}</div>
+      <div class="score-inputs">
+        <input type="number" min="0" max="20" inputmode="numeric" data-role="home" value="${pred.home}">
+        <span>—</span>
+        <input type="number" min="0" max="20" inputmode="numeric" data-role="away" value="${pred.away}">
+      </div>
+      <div class="team right">${m[1]}</div>
+    `;
+    const homeInput = row.querySelector('[data-role="home"]');
+    const awayInput = row.querySelector('[data-role="away"]');
+
+    const handleScoreInput = () => {
+      pred.home = homeInput.value;
+      pred.away = awayInput.value;
+      updateProgress();
+    };
+
+    homeInput.addEventListener('input', handleScoreInput);
+    awayInput.addEventListener('input', handleScoreInput);
+    list.appendChild(row);
+  });
+
+  document.getElementById('prevBtn').disabled = (idx===0);
+  document.getElementById('prevBtn').style.opacity = (idx===0) ? '0.4' : '1';
+
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  if (idx < maxUnlocked) {
+    document.getElementById('nextBtn').textContent = 'Siguiente jornada →';
+  } else {
+    document.getElementById('nextBtn').textContent = 'Revisar y enviar →';
+  }
+
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(currentJornadaIdx>0) renderJornada(currentJornadaIdx-1);
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  if(currentJornadaIdx < maxUnlocked){
+    renderJornada(currentJornadaIdx+1);
+  } else {
+    showReview();
+  }
+});
+
+function showReview(){
+  document.getElementById('screen-predict').style.display = 'none';
+  document.getElementById('screen-review').style.display = 'block';
+  const filled = countFilledInUnlocked();
+  const total = getTotalUnlockedMatches();
+  document.getElementById('reviewCount').textContent = filled + ' / ' + total;
+  document.getElementById('statusMsg').textContent = '';
+  document.getElementById('statusMsg').className = 'status-msg';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('backToPredictBtn').addEventListener('click', ()=>{
+  document.getElementById('screen-review').style.display = 'none';
+  document.getElementById('screen-predict').style.display = 'block';
+  renderJornada(currentJornadaIdx);
+});
+
+document.getElementById('sendBtn').addEventListener('click', async ()=>{
+  const sendBtn = document.getElementById('sendBtn');
+  const statusMsg = document.getElementById('statusMsg');
+  const filled = countFilledInUnlocked();
+  const total = getTotalUnlockedMatches();
+  
+  if(filled === 0){
+    statusMsg.textContent = 'Predecí al menos un partido antes de enviar.';
+    statusMsg.className = 'status-msg err';
+    return;
+  }
+
+  // Aviso si se está abriendo como archivo local
+  if (window.location.protocol === 'file:') {
+    statusMsg.innerHTML = '⚠️ Abrí esta página desde un servidor (no como archivo local). Subila a Netlify, GitHub Pages o usá Live Server.';
+    statusMsg.className = 'status-msg err';
+    return;
+  }
+
+  sendBtn.disabled = true;
+  statusMsg.innerHTML = '<span class="spinner"></span>Enviando predicciones...';
+  statusMsg.className = 'status-msg';
+
+  let lines = [];
+  const maxUnlocked = getMaxUnlockedJornadaIdx();
+  for (let jIdx = 0; jIdx <= maxUnlocked; jIdx++) {
+    const j = JORNADAS[jIdx];
+    const jPreds = predictions[jIdx];
+    const anyFilled = jPreds.some(m => m.home!=="" && m.away!=="");
+    if(!anyFilled) continue;
+    lines.push(`Jornada ${j.n} (${j.dateLabel})`);
+    j.matches.forEach((m, mIdx) => {
+      const p = jPreds[mIdx];
+      if(p.home!=="" && p.away!==""){
+        lines.push(`  ${m[0]} ${p.home} - ${p.away} ${m[1]}`);
+      }
+    });
+    lines.push('');
+  }
+  const predictionsText = lines.join('\n');
+
+  // Usamos FormData (más compatible con FormSubmit que JSON)
+  const formData = new FormData();
+  formData.append('Nombre', playerName);
+  formData.append('Partidos predichos', filled + ' / ' + total);
+  formData.append('Predicciones', predictionsText);
+  formData.append('_subject', `Predicciones Champions League de ${playerName}`);
+  formData.append('_captcha', 'false');
+  formData.append('_template', 'box');
+  formData.append('_honey', ''); // honeypot anti-spam
+
+  try {
+    const res = await fetch(`https://formsubmit.co/ajax/${DEST_EMAIL}`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && data.success !== 'false') {
+      document.getElementById('doneName').textContent = playerName;
+      document.getElementById('screen-review').style.display = 'none';
+      document.getElementById('screen-done').style.display = 'block';
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+      // Si falla AJAX, usamos el método clásico de form POST
+      statusMsg.innerHTML = 'Reintentando con método alternativo...';
+      submitViaForm(playerName, filled, total, predictionsText);
+    }
+  } catch (err) {
+    statusMsg.innerHTML = 'Error de red. Reintentando...';
+    submitViaForm(playerName, filled, total, predictionsText);
+  } finally {
+    sendBtn.disabled = false;
+  }
+});
+
+function submitViaForm(name, filled, total, predictionsText) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `https://formsubmit.co/${DEST_EMAIL}`;
+  form.style.display = 'none';
+
+  const fields = {
+    'Nombre': name,
+    'Partidos predichos': `${filled} / ${total}`,
+    'Predicciones': predictionsText,
+    '_subject': `Predicciones Champions League de ${name}`,
+    '_captcha': 'false',
+    '_template': 'box',
+    '_next': window.location.href // vuelve a la misma página después
+  };
+
+  for (const key in fields) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = fields[key];
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+</body>
+</html>
