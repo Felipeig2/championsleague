@@ -442,17 +442,25 @@ let playerName = "";
 let currentJornadaIdx = 0;
 const predictions = JORNADAS.map(j => j.matches.map(()=>({home:"",away:""})));
 
+// Solo se abre la siguiente jornada cuando la anterior está 100% completa.
+// Cambiá este número para habilitar más jornadas (1 = solo J1, 2 = J1+J2, etc.)
+const MAX_JORNADA_ABIERTA = 1; // 1-based: 1 = solo jornada 1
+
 function isJornadaComplete(jIdx) {
   return predictions[jIdx].every(m => m.home !== "" && m.away !== "");
 }
 
 function getMaxUnlockedJornadaIdx() {
-  for (let i = 0; i < JORNADAS.length - 1; i++) {
+  // Nunca superar la jornada máxima abierta por el admin
+  const hardCap = Math.min(MAX_JORNADA_ABIERTA, JORNADAS.length) - 1; // 0-based
+  let unlocked = 0;
+  for (let i = 0; i < hardCap; i++) {
     if (!isJornadaComplete(i)) {
-      return i;
+      return i; // la incompleta es el máximo alcanzable
     }
+    unlocked = i + 1;
   }
-  return JORNADAS.length - 1;
+  return Math.min(unlocked, hardCap);
 }
 
 const nameInput = document.getElementById('playerName');
@@ -576,10 +584,13 @@ function renderJornada(idx){
   document.getElementById('prevBtn').style.opacity = (idx===0) ? '0.4' : '1';
 
   const maxUnlocked = getMaxUnlockedJornadaIdx();
+  const nextBtn = document.getElementById('nextBtn');
   if (idx < maxUnlocked) {
-    document.getElementById('nextBtn').textContent = 'Siguiente jornada →';
+    nextBtn.textContent = 'Siguiente jornada →';
+  } else if (isJornadaComplete(idx)) {
+    nextBtn.textContent = 'Revisar y enviar →';
   } else {
-    document.getElementById('nextBtn').textContent = 'Revisar y enviar →';
+    nextBtn.textContent = 'Completá la jornada →';
   }
 
   updateProgress();
@@ -591,6 +602,17 @@ document.getElementById('prevBtn').addEventListener('click', ()=>{
 });
 document.getElementById('nextBtn').addEventListener('click', ()=>{
   const maxUnlocked = getMaxUnlockedJornadaIdx();
+  // Si la jornada actual no está completa, no dejar avanzar ni ir a revisar
+  if (!isJornadaComplete(currentJornadaIdx)) {
+    const statusHint = document.getElementById('jornadaDate');
+    statusHint.textContent = 'Jornada ' + JORNADAS[currentJornadaIdx].n + ' · ' + JORNADAS[currentJornadaIdx].dateLabel + '  ·  Completá todos los partidos para continuar';
+    statusHint.style.color = '#ff6b6b';
+    setTimeout(() => {
+      statusHint.textContent = 'Jornada ' + JORNADAS[currentJornadaIdx].n + ' · ' + JORNADAS[currentJornadaIdx].dateLabel;
+      statusHint.style.color = '';
+    }, 2500);
+    return;
+  }
   if(currentJornadaIdx < maxUnlocked){
     renderJornada(currentJornadaIdx+1);
   } else {
